@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+  <title>DataShop SQL</title>
+  <meta name="description" content="Plataforma educacional interativa para aprender SQL com exercícios práticos, banco SQLite real e progressão gamificada.">
+  <meta name="author" content="Pedro Augusto Durrewald">
+  <meta name="keywords" content="SQL, aprender SQL, banco de dados, SQLite, educação, exercícios SQL">
+ 
+  <meta property="og:title" content="DataShop SQL">
+  <meta property="og:description" content="Aprenda SQL resolvendo missões práticas com banco de dados real.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+ 
+  <!-- Favicon + SEO -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231e40af'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='13' fill='white'%3EDB%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231e40af'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='13' fill='white'%3EDB%3C/text%3E%3C/svg%3E">
+  <meta property="og:image" content="https://datashopsql.com.br/og-preview.png">
+  <meta property="og:url" content="https://datashopsql.com.br">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DataShop SQL">
+  <meta name="twitter:description" content="Aprenda SQL resolvendo missões práticas com banco de dados real.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+ 
+  <link rel="stylesheet" href="style.css">
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js" crossorigin="anonymous"></script>
+</head>
+<body>
+ 
+  <!-- Loading -->
+  <div id="loading-overlay" role="status" aria-live="polite">
+    <div class="ld-logo">DataShop</div>
+    <div class="ld-sub">SQL</div>
+    <div class="ld-bar"><div class="ld-fill"></div></div>
+    <div id="loading-msg">Conectando ao banco de dados...</div>
+  </div>
+ 
+  <!-- Header -->
+  <header id="app-header">
+    <div class="hd-left">
+      <div class="hd-logo">
+        <span class="hd-logo-ds">DataShop</span>
+        <span class="hd-logo-tag">SQL</span>
+      </div>
+    </div>
+    <div class="hd-center" id="hd-cargo-wrap">
+      <span class="hd-cargo-icon" id="hd-cargo-icon"></span>
+      <span class="hd-cargo-label" id="hd-cargo-label">Estagiário de Dados</span>
+    </div>
+    <div class="hd-right">
+      <div class="hd-session-timer-wrap">
+        <span class="hd-session-label">Tempo</span>
+        <span class="hd-session-val" id="session-timer">0s</span>
+      </div>
+      <div class="hd-pts" id="hd-pts">0 pts</div>
+      <div class="hd-prog-wrap">
+        <div class="hd-prog-bar"><div class="hd-prog-fill" id="hd-prog-fill"></div></div>
+        <span class="hd-prog-text" id="hd-prog-text">0 / 26</span>
+      </div>
+      <button class="btn-reset-hd" id="btn-reset-hd" type="button" title="Reiniciar">↺</button>
+    </div>
+  </header>
+ 
+  <!-- Shell -->
+  <div id="app-shell">
+ 
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="sb-top-actions">
+        <button class="btn-sb-top btn-sb-livre" id="btn-sb-livre" type="button">Modo livre</button>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Progresso</div>
+        <div id="career-track"></div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Exercícios</div>
+        <div id="ex-dots-sidebar"></div>
+        <div class="sb-dots-legend">
+          <span class="dot-sample done"></span><span>Concluído</span>
+          <span class="dot-sample active"></span><span>Atual</span>
+          <span class="dot-sample locked"></span><span>Bloqueado</span>
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-tabs">
+          <button class="sb-tab active" type="button" data-tab="schema" id="tab-schema">Tabelas</button>
+          <button class="sb-tab" type="button" data-tab="diagram" id="tab-diagram">Conexões</button>
+        </div>
+        <div id="sb-schema-panel">
+          <div id="schema-tree"></div>
+        </div>
+        <div id="sb-diagram-panel" hidden>
+          <button class="btn-expand-graph" type="button" id="btn-expand-graph">
+            ⤢ Ver diagrama completo
+          </button>
+          <div id="schema-diagram-preview"></div>
+        </div>
+      </div>
+      <div class="sb-section sb-help-section">
+        <button class="btn-sb-help" type="button" id="btn-sb-help">Como usar a plataforma</button>
+      </div>
+    </aside>
+ 
+    <!-- Main -->
+    <main id="main-content">
+ 
+      <!-- STATE: welcome -->
+      <div id="state-welcome" class="state" hidden>
+        <div class="welcome-card">
+          <div class="wc-header">
+            <div class="wc-logo-big">DataShop</div>
+            <div class="wc-tagline">SQL</div>
+          </div>
+          <div class="wc-body">
+            <p class="wc-intro">"Bem-vindo à DataShop.</p>
+            <p>Você acabou de ser contratado como o primeiro Analista de Dados desta empresa. O CEO Ricardo Matos está esperando por você.</p>
+            <p>A DataShop tem um banco de dados cheio de informações sobre clientes, produtos, pedidos e pagamentos — mas ninguém nunca os analisou de verdade.</p>
+            <div class="wc-highlight">
+              <div>Sua ferramenta: SQL</div>
+              <div>Sua missão: transformar dados em decisões</div>
+            </div>
+            <p class="wc-sign">Boa sorte. A empresa precisa de você."</p>
+ 
+            <div class="wc-how-title">Como funciona a plataforma</div>
+            <div class="wc-how-grid">
+              <div class="wc-how-item">
+                <div class="wc-how-num">1</div>
+                <div class="wc-how-text">
+                  <div class="wc-how-label">7 níveis progressivos</div>
+                  <div class="wc-how-desc">Cada nível apresenta um conceito SQL com explicação, exemplos e exercícios práticos — do SELECT básico até LEFT JOIN. Um exercício intermediário de JOIN facilita a transição entre os níveis.</div>
+                </div>
+              </div>
+              <div class="wc-how-item">
+                <div class="wc-how-num">2</div>
+                <div class="wc-how-text">
+                  <div class="wc-how-label">Editor com destaque de sintaxe</div>
+                  <div class="wc-how-desc">O editor colore automaticamente as palavras-chave SQL (SELECT, FROM, WHERE...), strings e números enquanto você digita. Use Ctrl+Enter para executar rapidamente.</div>
+                </div>
+              </div>
+              <div class="wc-how-item">
+                <div class="wc-how-num">3</div>
+                <div class="wc-how-text">
+                  <div class="wc-how-label">Validação real do resultado</div>
+                  <div class="wc-how-desc">O sistema executa sua query e compara o resultado com a solução oficial — verificando colunas, linhas e valores. Erros de sintaxe não contam como tentativa incorreta.</div>
+                </div>
+              </div>
+              <div class="wc-how-item">
+                <div class="wc-how-num">4</div>
+                <div class="wc-how-text">
+                  <div class="wc-how-label">Duas dicas por exercício</div>
+                  <div class="wc-how-desc">Dica 1 orienta o conceito sem revelar a resposta. Ver solução carrega a query correta no editor para você estudar e executar.</div>
+                </div>
+              </div>
+              <div class="wc-how-item">
+                <div class="wc-how-num">5</div>
+                <div class="wc-how-text">
+                  <div class="wc-how-label">Pontuação e progresso salvos</div>
+                  <div class="wc-how-desc">Sem dicas: 15 pts. Com dica 1: 10 pts. Com solução: 5 pts. O progresso é salvo automaticamente no navegador — você pode fechar e retomar de onde parou.</div>
+                </div>
+              </div>
+              <div class="wc-how-item">
+                <div class="wc-how-num">6</div>
+                <div class="wc-how-text">
+                  <div class="wc-how-label">Relatório de aprendizagem</div>
+                  <div class="wc-how-desc">Ao concluir todos os 26 exercícios, um relatório mostra: progresso por nível, tempo gasto, conceitos dominados, comandos SQL aprendidos e exercícios com mais dificuldade.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn-start-big" id="btn-welcome-start" type="button">Começar primeira missão →</button>
+        </div>
+      </div>
+ 
+      <!-- STATE: level intro -->
+      <div id="state-level-intro" class="state" hidden>
+        <div class="level-intro-card" id="level-intro-card">
+          <div class="li-badge">
+            <span class="li-num" id="li-num">Nível 1</span>
+            <span class="li-icon" id="li-icon"></span>
+          </div>
+          <h1 class="li-title" id="li-title"></h1>
+ 
+          <div class="li-ceo-bubble">
+            <div class="ceo-avatar">RC</div>
+            <div class="ceo-msg-wrap">
+              <div class="ceo-name">Ricardo Matos · CEO</div>
+              <div class="ceo-msg" id="li-ceo-msg"></div>
+            </div>
+          </div>
+          <div class="li-concept" id="li-concept"></div>
+          <div class="li-missions" id="li-missions"></div>
+          <button class="btn-level-start" id="btn-level-start" type="button">→ Iniciar Missões</button>
+        </div>
+      </div>
+ 
+      <!-- STATE: exercise -->
+      <div id="state-exercise" class="state" hidden>
+        <div id="review-banner" class="review-banner" hidden>
+          Modo Revisão — explorando exercícios já resolvidos. Nenhum ponto será somado.
+        </div>
+        <div class="ex-header-bar">
+          <div class="ex-level-badge" id="ex-level-badge">Nível 1</div>
+          <div class="ex-progress-dots" id="ex-progress-dots"></div>
+          <div class="ex-counter" id="ex-counter">1 / 26</div>
+        </div>
+        <div class="ex-card">
+          <div class="ex-card-header">
+            <span class="ex-missao" id="ex-missao">Missão 1.1</span>
+            <span class="ex-titulo" id="ex-titulo"></span>
+            <span class="ex-pts-badge" id="ex-pts-badge">+15 pts</span>
+          </div>
+          <div class="ex-ceo-msg">
+            <span class="ceo-mini">CEO:</span>
+            <span class="ex-narrativa" id="ex-narrativa"></span>
+          </div>
+          <div class="ex-enunciado" id="ex-enunciado"></div>
+          <div class="hints-area" id="hints-area"></div>
+          <div class="editor-wrap">
+            <div class="editor-bar">
+              <span class="e-dots"><span class="d r"></span><span class="d y"></span><span class="d g"></span></span>
+              <span class="e-fname" id="e-fname">databasetc.db</span>
+            </div>
+            <div class="editor-body">
+              <div id="sql-editor-hl" class="sql-hl-layer" aria-hidden="true"></div>
+              <textarea id="sql-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+                placeholder="-- Escreva sua query SQL aqui&#10;-- Ctrl+Enter para executar"></textarea>
+            </div>
+            <div class="editor-toolbar">
+              <button class="btn-run" id="btn-run" type="button">▶ Executar</button>
+              <button class="btn-hint" id="btn-hint" type="button">Dica 1</button>
+              <button class="btn-clear-ed" id="btn-clear" type="button">Limpar</button>
+              <button class="btn-retry" id="btn-retry" type="button">↺ Tentar novamente</button>
+              <span class="hint-cost" id="hint-cost"></span>
+              <span class="shortcut-tip">Ctrl+Enter</span>
+            </div>
+          </div>
+          <div class="result-area" id="result-area">
+            <div class="result-placeholder">— Execute uma query para ver os resultados —</div>
+          </div>
+          <div id="success-area" hidden>
+            <div class="success-banner" id="success-banner"></div>
+            <button class="btn-next-ex" id="btn-next-ex" type="button">→ Próxima Missão</button>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- STATE: level complete -->
+      <div id="state-level-complete" class="state" hidden>
+        <div class="lc-card">
+          <div class="lc-promoted">PROMOÇÃO!</div>
+          <div class="lc-cargo-icon" id="lc-cargo-icon"></div>
+          <h2 class="lc-cargo-title" id="lc-cargo-title"></h2>
+          <div class="lc-ceo-bubble">
+            <div class="ceo-avatar">RC</div>
+            <div class="ceo-msg-wrap">
+              <div class="ceo-name">Ricardo Matos · CEO</div>
+              <div class="ceo-msg" id="lc-conclusao"></div>
+            </div>
+          </div>
+          <button class="btn-next-level" id="btn-next-level" type="button">→ Próximo Nível</button>
+        </div>
+      </div>
+ 
+      <!-- STATE: final -->
+      <div id="state-final" class="state" hidden>
+        <div class="final-card">
+          <div class="final-inner" id="final-inner"></div>
+          <div class="final-stats" id="final-stats"></div>
+          <details style="margin-top:24px">
+            <summary class="explore-sql">Continuar explorando o banco de dados</summary>
+            <div class="editor-wrap" style="margin-top:12px">
+              <div class="editor-bar">
+                <span class="e-dots"><span class="d r"></span><span class="d y"></span><span class="d g"></span></span>
+                <span class="e-fname">exploração livre</span>
+              </div>
+              <textarea id="sql-free" spellcheck="false" autocomplete="off"
+                placeholder="SELECT * FROM clientes LIMIT 10;"></textarea>
+              <div class="editor-toolbar">
+                <button class="btn-run" id="btn-run-free" type="button">▶ Executar</button>
+              </div>
+            </div>
+            <div class="result-area" id="result-free">
+              <div class="result-placeholder">— Execute uma query —</div>
+            </div>
+          </details>
+        </div>
+      </div>
+ 
+      <!-- STATE: dashboard -->
+      <div id="state-dashboard" class="state" hidden>
+        <div class="dash-card">
+          <div class="dash-header">
+            <h2 class="dash-title">Relatório de Aprendizagem</h2>
+            <div class="dash-header-btns">
+              <button class="btn-dash-review" id="btn-dash-review" type="button">Modo livre</button>
+              <button class="btn-dash-back" id="btn-dash-back" type="button">↺ Reiniciar jornada</button>
+            </div>
+          </div>
+          <div id="dash-summary"></div>
+          <div class="dash-section-title">Comandos SQL utilizados</div>
+          <div class="dash-competencies" id="dash-competencies"></div>
+          <div class="dash-grid">
+            <div class="dash-block">
+              <div class="dash-block-title">Progresso por Nível</div>
+              <div id="dash-levels"></div>
+            </div>
+            <div class="dash-block">
+              <div class="dash-block-title">Exercícios com Mais Dificuldade</div>
+              <div id="dash-hardest"></div>
+            </div>
+          </div>
+          <div class="dash-block" style="margin-top:16px">
+            <div class="dash-block-title">Conceitos para Revisar</div>
+            <div id="dash-concepts"></div>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Modo Livre -->
+      <div id="state-livre" class="state" hidden>
+        <div class="livre-card">
+          <div class="livre-header">
+            <div>
+              <div class="livre-title">Modo livre</div>
+              <div class="livre-sub">Escreva qualquer consulta SELECT no banco de dados da DataShop.</div>
+            </div>
+            <button class="btn-livre-back" id="btn-livre-back" type="button">← Voltar</button>
+          </div>
+          <div class="editor-wrap">
+            <div class="editor-bar">
+              <span class="e-dots"><span class="d r"></span><span class="d y"></span><span class="d g"></span></span>
+              <span class="e-fname">databasetc.db — exploração livre</span>
+            </div>
+            <div class="editor-body">
+              <div id="sql-livre-hl" class="sql-hl-layer" aria-hidden="true"></div>
+              <textarea id="sql-livre" spellcheck="false" autocomplete="off"
+                placeholder="-- Escreva qualquer consulta SQL&#10;-- Ex: SELECT * FROM clientes LIMIT 10"></textarea>
+            </div>
+            <div class="editor-toolbar">
+              <button class="btn-run" id="btn-run-livre" type="button">▶ Executar</button>
+              <button class="btn-clear-ed" id="btn-clear-livre" type="button">Limpar</button>
+              <span class="shortcut-tip">Ctrl+Enter</span>
+            </div>
+          </div>
+          <div class="result-area" id="result-livre">
+            <div class="result-placeholder">Execute uma consulta para ver os resultados.</div>
+          </div>
+        </div>
+      </div>
+ 
+    </main>
+  </div>
+ 
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+ 
+  <!-- Reset Confirm Modal -->
+  <div id="reset-modal" class="reset-modal-overlay" hidden>
+    <div class="reset-modal-box">
+      <div class="reset-modal-title">Reiniciar jornada</div>
+      <div class="reset-modal-msg">Pontos, exercícios e tempo registrado serão perdidos. Tem certeza?</div>
+      <div class="reset-modal-btns">
+        <button class="btn-reset-cancel" id="btn-reset-cancel" type="button">Cancelar</button>
+        <button class="btn-reset-confirm" id="btn-reset-confirm" type="button">Reiniciar</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Graph Modal -->
+  <div id="graph-modal" class="graph-modal-overlay" hidden>
+    <div class="graph-modal-box">
+      <div class="graph-modal-header">
+        <span class="graph-modal-title">Diagrama de Relacionamento — DataShop</span>
+        <button class="btn-close-graph" type="button" id="btn-close-graph">× Fechar</button>
+      </div>
+      <div id="schema-diagram-container" class="graph-modal-body"></div>
+    </div>
+  </div>
+ 
+  <!-- Help Modal -->
+  <div id="help-modal" class="help-modal-overlay" hidden>
+    <div class="help-modal-box">
+      <div class="help-modal-header">
+        <span class="help-modal-title">Como usar a plataforma</span>
+        <button class="btn-close-help" type="button" id="btn-close-help">Fechar</button>
+      </div>
+      <div class="help-modal-body">
+ 
+        <div class="help-section">
+          <div class="help-section-title">Navegação</div>
+          <div class="help-item">
+            <div class="help-item-label">Níveis e exercícios concluídos</div>
+            <ul class="help-list">
+              <li>Níveis com círculo verde na barra lateral são clicáveis — clique para rever a introdução com a mensagem do CEO e o conceito SQL</li>
+              <li>Os círculos numerados em Exercícios também são clicáveis após resolvidos — clique para voltar a qualquer exercício anterior</li>
+            </ul>
+          </div>
+        </div>
+ 
+        <div class="help-section">
+          <div class="help-section-title">Editor SQL</div>
+          <div class="help-item">
+            <div class="help-item-label">Atalhos e botões</div>
+            <ul class="help-list">
+              <li>Ctrl + Enter — executa a query sem clicar no botão Executar</li>
+              <li>Limpar — apaga o editor e o resultado da última execução</li>
+              <li>Tentar novamente — esconde o banner de acerto e permite reescrever do zero, mesmo após ter resolvido o exercício</li>
+              <li>O editor destaca palavras-chave SQL em azul, strings em verde e números em amarelo automaticamente</li>
+            </ul>
+          </div>
+        </div>
+ 
+        <div class="help-section">
+          <div class="help-section-title">Dicas</div>
+          <div class="help-item">
+            <div class="help-item-label">Como funcionam</div>
+            <ul class="help-list">
+              <li>Dica 1 — orientação conceitual, explica o caminho sem revelar a resposta</li>
+              <li>Ver solução — carrega a query correta no editor; vale 5 pts ao acertar</li>
+              <li>Após resolver o exercício, você pode rever as dicas sem penalidade de pontos</li>
+            </ul>
+          </div>
+        </div>
+ 
+        <div class="help-section">
+          <div class="help-section-title">Banco de Dados</div>
+          <div class="help-item">
+            <div class="help-item-label">Abas na barra lateral</div>
+            <ul class="help-list">
+              <li>Tabelas — campos de cada tabela com indicação de PK e FK; clique no nome para expandir</li>
+              <li>Conexões — clique em "Ver diagrama completo" para abrir o diagrama em tela cheia com nós arrastáveis</li>
+            </ul>
+          </div>
+        </div>
+ 
+        <div class="help-section">
+          <div class="help-section-title">Modo livre</div>
+          <div class="help-item">
+            <div class="help-item-label">Exploração sem exercício</div>
+            <ul class="help-list">
+              <li>Acesse pelo botão no topo da barra lateral a qualquer momento durante a jornada</li>
+              <li>Escreva qualquer consulta SELECT no banco da DataShop sem contexto de exercício</li>
+              <li>Útil para explorar os dados, testar queries ou praticar livremente</li>
+              <li>Apenas SELECT é permitido — INSERT, UPDATE, DELETE e outros comandos são bloqueados</li>
+            </ul>
+          </div>
+        </div>
+ 
+        <div class="help-section">
+          <div class="help-section-title">Pontuação</div>
+          <div class="help-item">
+            <div class="help-item-label">Como os pontos são calculados</div>
+            <ul class="help-list">
+              <li>Sem dicas — 15 pts</li>
+              <li>Com a Dica 1 — 10 pts</li>
+              <li>Com a solução completa — 5 pts</li>
+              <li>Exercícios já resolvidos não somam pontos ao revisitar</li>
+            </ul>
+          </div>
+        </div>
+ 
+        <div class="help-section">
+          <div class="help-section-title">Relatório de Aprendizagem</div>
+          <div class="help-item">
+            <div class="help-item-label">O que é mostrado</div>
+            <ul class="help-list">
+              <li>Aparece ao concluir todos os 26 exercícios</li>
+              <li>Barra de progresso geral com percentual de conclusão</li>
+              <li>Pontos acumulados, exercícios resolvidos sem dica, respostas incorretas e tempo total na plataforma</li>
+              <li>Progresso por nível e análise de domínio por conceito SQL</li>
+              <li>Lista dos exercícios com mais tentativas incorretas</li>
+            </ul>
+          </div>
+          <div class="help-item" style="margin-top:8px">
+            <div class="help-item-label">Como respostas incorretas são contadas</div>
+            <ul class="help-list">
+              <li>Conta apenas queries que executaram com sucesso mas retornaram dados diferentes do resultado esperado</li>
+              <li>Erros de sintaxe SQL — palavra digitada errada, coluna inexistente, parêntese faltando — não são contados</li>
+              <li>Revisitar um exercício já resolvido e executar novas queries também não conta</li>
+            </ul>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+  <script src="database.js" defer></script>
+  <script src="ui.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>
