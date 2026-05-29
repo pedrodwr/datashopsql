@@ -1,4 +1,4 @@
-markdown# DataShop SQL
+ DataShop SQL
 
 Plataforma educacional interativa para aprender SQL com exercícios práticos, banco de dados SQLite real e progressão gamificada.
 
