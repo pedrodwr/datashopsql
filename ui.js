@@ -354,7 +354,7 @@ const UI = (() => {
         { cmd:'WHERE',    mastered: resolvidos.some(id=>['e09','e10','e11','e12','e13'].includes(id)) },
         { cmd:'ORDER BY', mastered: resolvidos.some(id=>['e14','e15'].includes(id)) },
         { cmd:'LIMIT',    mastered: resolvidos.some(id=>['e15','e16'].includes(id)) },
-        { cmd:'JOIN',     mastered: resolvidos.some(id=>['e17','e18','e19','e20'].includes(id)) },
+        { cmd:'JOIN',     mastered: resolvidos.some(id=>['e16b','e17','e18','e19','e20'].includes(id)) },
         { cmd:'GROUP BY', mastered: resolvidos.some(id=>['e21','e22','e23'].includes(id)) },
         { cmd:'AVG / SUM',mastered: resolvidos.some(id=>['e22','e23'].includes(id)) },
         { cmd:'LEFT JOIN',mastered: resolvidos.some(id=>['e24','e25'].includes(id)) },
@@ -392,7 +392,7 @@ const UI = (() => {
       {label:'SELECT e FROM',    ids:['e01','e02','e03','e04','e05','e06','e07','e08'],desc:'Consultas básicas e seleção de colunas'},
       {label:'WHERE',            ids:['e09','e10','e11','e12','e13'],                  desc:'Filtragem de dados com condições'},
       {label:'ORDER BY e LIMIT', ids:['e14','e15','e16'],                              desc:'Ordenação e limitação de resultados'},
-      {label:'JOIN',             ids:['e17','e18','e19','e20'],                        desc:'Relacionamento entre tabelas'},
+      {label:'JOIN',             ids:['e16b','e17','e18','e19','e20'],                  desc:'Relacionamento entre tabelas'},
       {label:'GROUP BY',         ids:['e21','e22','e23'],                              desc:'Agrupamento e funções de agregação'},
       {label:'LEFT JOIN',        ids:['e24','e25'],                                    desc:'Identificação de registros ausentes'},
     ];
