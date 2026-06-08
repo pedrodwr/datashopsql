@@ -515,9 +515,13 @@ const UI = (() => {
   function renderDiagram() {
     const container=$('schema-diagram-container'); if(!container) return;
     const _POS={
-      clientes:{x:20,y:20},  pedidos:{x:20,y:200},   itens_pedido:{x:220,y:310},
-      pagamentos:{x:220,y:110},produtos:{x:450,y:200},  categorias:{x:450,y:30},
-      avaliacoes:{x:450,y:370}
+      clientes:    {x:20,  y:20},
+      pedidos:     {x:20,  y:230},
+      pagamentos:  {x:430, y:20},
+      categorias:  {x:640, y:20},
+      produtos:    {x:640, y:200},
+      itens_pedido:{x:330, y:300},
+      avaliacoes:  {x:20,  y:460},
     };
     const NODES = SCHEMA.tables.map(t=>({
       id:t.name, label:t.name, color:t.cor,
@@ -567,10 +571,11 @@ const UI = (() => {
         const fname=typeof f==='string'?f:f.name;
         const isPk=typeof f==='object'?!!f.pk:fname==='id';
         const isFk=typeof f==='object'?!!f.fk:(fname.startsWith('id_'));
+        const isUq=typeof f==='object'?!!f.uq:false;
         const color=isPk?'#d97706':isFk?'#7c3aed':'#64748b';
         const row=document.createElement('div');
         row.style.cssText=`display:flex;align-items:center;gap:4px;padding:2px 10px;font-family:JetBrains Mono,monospace;font-size:10px;${i>0?'border-top:1px solid #f1f5f9':''}`;
-        const badges=(isPk?'<span style="font-size:8px;background:#fffbeb;color:#d97706;border:1px solid #fde68a;border-radius:2px;padding:0 3px">PK</span>':'')+(isFk?'<span style="font-size:8px;background:#f5f3ff;color:#7c3aed;border:1px solid #c4b5fd;border-radius:2px;padding:0 3px">FK</span>':'');
+        const badges=(isPk?'<span style="font-size:8px;background:#fffbeb;color:#d97706;border:1px solid #fde68a;border-radius:2px;padding:0 3px">PK</span>':'')+(isFk?'<span style="font-size:8px;background:#f5f3ff;color:#7c3aed;border:1px solid #c4b5fd;border-radius:2px;padding:0 3px">FK</span>':'')+(isUq?'<span style="font-size:8px;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:2px;padding:0 3px">UQ</span>':'');
         row.innerHTML=`<span style="color:${color};flex:1">${fname}</span><span style="display:flex;gap:2px">${badges}</span>`;
         body.appendChild(row);
       });
@@ -596,7 +601,7 @@ const UI = (() => {
     });
     const legend=document.createElement('div');
     legend.style.cssText='position:absolute;bottom:8px;right:8px;background:rgba(255,255,255,.92);border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;font-size:10px;font-family:JetBrains Mono,monospace;display:flex;flex-direction:column;gap:3px;pointer-events:none';
-    legend.innerHTML='<span style="color:#d97706">PK — Chave primária</span><span style="color:#7c3aed">FK — Chave estrangeira</span><span style="color:#94a3b8;font-size:9px;margin-top:2px">Arraste os nós para reorganizar</span>';
+    legend.innerHTML='<span style="color:#d97706">PK — Chave Primária</span><span style="color:#7c3aed">FK — Chave Estrangeira</span><span style="color:#15803d">UQ — Restrição de Unicidade</span><span style="color:#94a3b8;font-size:9px;margin-top:2px">Arraste os nós para reorganizar</span>';
     container.appendChild(legend);
   }
 

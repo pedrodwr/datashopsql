@@ -1,5 +1,5 @@
 /**
- * app.js — DataShop SQL Academy
+ * app.js — DataShop SQL 
  * Lógica: SQL.js, fluxo de 7 níveis, 26 exercícios, pontuação, dicas
  */
 const App = (() => {

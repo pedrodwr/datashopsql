@@ -38,7 +38,7 @@ const SCHEMA = {
     ]},
     { name: 'pagamentos',   cor: '#0891b2', fields: [
       { name: 'id', type: 'INTEGER', pk: true },
-      { name: 'id_pedido', type: 'INTEGER', fk: 'pedidos' },
+      { name: 'id_pedido', type: 'INTEGER', fk: 'pedidos', uq: true },
       { name: 'tipo', type: 'VARCHAR' },
       { name: 'status', type: 'VARCHAR' },
       { name: 'valor', type: 'REAL' },
